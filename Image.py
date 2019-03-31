@@ -19,8 +19,10 @@ def to_YCrCb(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
 
 def in_range(img, lower, upper):
-        mask = cv2.inRange(img, lower, upper)
-        return cv2.bitwise_and(img, img, mask=mask), mask
+    temp = to_YCrCb(img)
+    mask = cv2.inRange(temp, lower, upper)
+    img = cv2.bitwise_and(img, img, mask=mask)
+    return img, mask
 
 #######################
 # Cleans up the image #
@@ -58,17 +60,15 @@ def get_contours(img):
     for i in range(len(contours)):
         # creating convex hull object for each contour
         hull.append(cv2.convexHull(contours[i], False))
-
-    # create an empty black image
-    drawing = img.copy()
     
     # draw contours and hull points
     for i in range(len(contours)):
-        color_contours = (0, 255, 0) # green - color for contours
-        color = (255, 0, 0) # blue - color for convex hull
-        # draw ith contour
-        cv2.drawContours(drawing, contours, i, color_contours, 1, 8, hierarchy)
-        # draw ith convex hull object
-        cv2.drawContours(drawing, hull, i, color, 1, 8)
+        if cv2.contourArea(contours[i]) > 1200:
+            color_contours = (0, 255, 0) # green - color for contours
+            color = (255, 0, 0) # blue - color for convex hull
+            # draw ith contour
+            cv2.drawContours(img, contours, i, color_contours, 1, 8, hierarchy)
+            # draw ith convex hull object
+            cv2.drawContours(img, hull, i, color, 1, 8)
 
     return img, hull
