@@ -51,24 +51,39 @@ def remove_noise(img, i=2):
 #######################################################
 # Finds polygons of where hands are using convex hull #
 #######################################################
-def get_contours(img):
+def simplify_points(points):
+    new = []
+    for shape in points:
+        # print (shape)
+        temp = []
+        for i in range(len(shape)):
+            temp.append((shape[i][0][0],shape[i][0][1]))
+        new.append(temp)
+    
+    return new
+
+def get_contours(img, thresh = 1750):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
     # create hull array for convex hull points
     hull = []
+    points = []
     
     # calculate points for each contour
     for i in range(len(contours)):
         # creating convex hull object for each contour
         hull.append(cv2.convexHull(contours[i], False))
-    
+
+    color_contours = (0, 255, 0) # green - color for contours
+    color = (255, 0, 0) # blue - color for convex hull
     # draw contours and hull points
     for i in range(len(contours)):
-        if cv2.contourArea(contours[i]) > 1200:
-            color_contours = (0, 255, 0) # green - color for contours
-            color = (255, 0, 0) # blue - color for convex hull
+        if cv2.contourArea(contours[i]) > thresh:
             # draw ith contour
             cv2.drawContours(img, contours, i, color_contours, 1, 8, hierarchy)
             # draw ith convex hull object
             cv2.drawContours(img, hull, i, color, 1, 8)
 
-    return img, hull
+            points.append(hull[i].tolist())
+
+    return img, simplify_points(points)

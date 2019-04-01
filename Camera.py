@@ -7,8 +7,6 @@ class Camera:
         # creates camera
         self.cap = cv2.VideoCapture(cam_num)
 
-        # saves first frame as background
-        _, self.background = self.cap.read()
         _, self.frame = self.cap.read()
 
         # 
@@ -20,12 +18,11 @@ class Camera:
 
         # haar cascade to be used for detecting faces
         self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
-
-        # 5x5 kernel to used for morphologies
     
-    def set_frame(self):
+    def set_frame(self, flip=1):
         "Gets current frame"
-        _, self.frame = self.cap.read()
+        _, temp = self.cap.read()
+        self.frame = cv2.flip(temp, flip)
 
     def remove_background(self, back=0):
         """
@@ -73,7 +70,7 @@ if __name__ == "__main__":
         cam.set_frame()
         cam.get_hands()
 
-        cv2.imshow("frame", cv2.flip(cam.frame,1))
+        cv2.imshow("frame", cam.frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
