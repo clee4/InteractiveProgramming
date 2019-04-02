@@ -1,6 +1,7 @@
 This project uses a webcam to take the position of your hand to collide with a ball on screen. The goal is to hit the ball as many times as possible in the time given.
 
 To run the code, OpenCV and pygame need to be installed.
+
 OPENCV INSTALLATION:
 
 $ sudo apt-get install python-opencv
