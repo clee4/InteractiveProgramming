@@ -19,6 +19,12 @@ def to_YCrCb(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
 
 def in_range(img, lower, upper):
+    """
+    lower: lower YCrCb bound for color
+    upper: upper YCrCb bound for color
+
+    returns everythings in frame between lower and upper
+    """
     temp = to_YCrCb(img)
     mask = cv2.inRange(temp, lower, upper)
     img = cv2.bitwise_and(img, img, mask=mask)
@@ -28,33 +34,32 @@ def in_range(img, lower, upper):
 # Cleans up the image #
 #######################
 def blur_img(img, k_size=(5,5)):
-    # img = cv2.medianBlur(img, 5)
+    """returns a gaussian blur of the image"""
     return cv2.GaussianBlur(img, k_size, 0)
 
 def close_img(img, kernel=kernel):
+    """returns image with closed shapes"""
     return cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
 
 def open_img(img, kernel=kernel):
+    """returns image with removed outer nosie"""
     return cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
 
 def remove_noise(img, i=2):
-    """cv2.addWeighted(img, .5, edges, .5, 0)
-    Remcv2.addWeighted(img, .5, edges, .5, 0) to make it more useable
-
-    imgcv2.addWeighted(img, .5, edges, .5, 0) to remove noise from
-    i: cv2.addWeighted(img, .5, edges, .5, 0)s to erode and dilate
-
-    returns less noisy frame
-    """
+    """returns less noisy frame"""
     return close_img(open_img(close_img(img)))
 
 #######################################################
 # Finds polygons of where hands are using convex hull #
 #######################################################
 def simplify_points(points):
+    """
+    Converts nested points found using convex hull to more usable organization
+    
+    returns reorganized points
+    """
     new = []
     for shape in points:
-        # print (shape)
         temp = []
         for i in range(len(shape)):
             temp.append((shape[i][0][0],shape[i][0][1]))
@@ -63,6 +68,7 @@ def simplify_points(points):
     return new
 
 def get_contours(img, thresh = 1750):
+    """returns points of polygon approximation of contours"""
     contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # create hull array for convex hull points

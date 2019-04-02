@@ -7,9 +7,10 @@ class Camera:
         # creates camera
         self.cap = cv2.VideoCapture(cam_num)
 
+        # sets initial frame
         _, self.frame = self.cap.read()
 
-        # 
+        # creates object for background subtraction
         self.fgbg = cv2.createBackgroundSubtractorKNN()
 
         # upper and lower skin threshold values
@@ -26,14 +27,17 @@ class Camera:
 
     def remove_background(self, back=0):
         """
-        Takes image in RGB then converts to YCrCb and removes background from img.
-
-        returns frame without a background in YCrCb
+        Removes background of frame through OpenCV Background Subtraction
         """
         fgmask = self.fgbg.apply(self.frame)
         self.frame = cv2.bitwise_and(self.frame, self.frame, mask=fgmask)
 
     def find_face(self, cascade = 0):
+        """
+        Uses haar cascade to detect any faces in frame
+
+        returns rectangles that bound the face
+        """
         if cascade == 0:
             cascade = self.face_cascade
 
@@ -41,7 +45,7 @@ class Camera:
 
     def remove_face(self):
         """
-        Finds face using haar cascade then fills it with a color
+        Replaces each face with a black rectangle/square
         """
         faces = self.find_face()
         mask = np.ones(self.frame.shape[0:2], dtype="uint8")*255
@@ -51,7 +55,11 @@ class Camera:
         self.frame = cv2.bitwise_and(self.frame, self.frame, mask= mask)
 
     def get_hands(self):
-        """returns finds masks out hands"""
+        """
+        Masks out hands then finds convex hulls to approximate hands
+
+        returns sets of points that approximates the hand
+        """
         self.frame = img.blur_img(self.frame)
         self.remove_face()
         self.remove_background()
