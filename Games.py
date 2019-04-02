@@ -2,14 +2,10 @@ import pygame
 import Camera
 import cv2
 import numpy as np
+import random
 
 def is_overlapping(surface1, surface2):
-    offset_x = surface1.get_rect[0] - surface2.get_rect[0]
-    offset_y = surface1.get_rect[1] - surface2.get_rect[1]
-    
-    mask1 = pygame.mask.from_surface(surface1)
-    mask2 = pygame.mask.from_surface(surface2)
-    return mask1.overlap(mask2, (offset_x,offset_y))
+    return pygame.sprite.collide_mask(surface1, surface2)
 
 def find_midpoint(p1, p2):
     return [int((p1[0]+p2[0])/2), int((p1[1]+p2[1])/2)]
@@ -18,10 +14,18 @@ class Ball(pygame.sprite.Sprite):
     def __init__(self, r=10, w=20, h=20, color=(255,0,0)):
         super().__init__()
 
-        self.image = pygame.Surface([w, h], pygame.SRCALPHA)
+        self.w = w
+        self.h = h
+
+        self.image = pygame.Surface([self.w, self.h], pygame.SRCALPHA)
         pygame.draw.circle(self.image, color, find_midpoint([0,0],[w,h]), r)
 
         self.rect = self.image.get_rect()
+
+    def move(self, point):
+        point = [point[0]-(self.w/2), point[1]-(self.h/2)]
+        self.rect.x = point[0]
+        self.rect.y = point[1]
 
 class Hand(pygame.sprite.Sprite):
     def __init__(self, points, res=(640,480)):
@@ -31,10 +35,12 @@ class Hand(pygame.sprite.Sprite):
         self.image = pygame.Surface(self.res, pygame.SRCALPHA)
 
         self.update(points)
+
+        self.rect = self.image.get_rect()
     
     def update(self, points):
         temp = pygame.Surface(self.res, pygame.SRCALPHA)
-        pygame.draw.polygon(temp, (0, 128, 255), hand)
+        pygame.draw.polygon(temp, (0, 128, 255), points)
         self.image = temp
 
 class Game(pygame.sprite.Sprite):
@@ -63,21 +69,24 @@ class Game(pygame.sprite.Sprite):
 
         self.hands = []
         for hand in points:
-            temp = pygame.Surface(self.res, pygame.SRCALPHA)
-            pygame.draw.polygon(temp, (0, 128, 255), hand)
-            self.hands.append(temp)
+            self.hands.append(Hand(hand))
+            # temp = pygame.Surface(self.res, pygame.SRCALPHA)
+            # pygame.draw.polygon(temp, (0, 128, 255), hand)
+            # self.hands.append(temp)
 
     def update_screen(self):
         """Updates display to include all hands found in the image"""
-        self.screen.blit(self.ball.image, [0,0])
+        self.screen.blit(self.ball.image, [self.ball.rect.x,self.ball.rect.y])
 
         for hand in self.hands:
-            self.screen.blit(hand, [0,0])
+            self.screen.blit(hand.image, [0,0])
+
+            if is_overlapping(hand, self.ball) != None:
+                self.ball.move((random.randint(0,640),random.randint(0,480)))
 
     def display_screen(self, rate=60, flip=0):
         """Displays screen surface and returns boolean value"""
         cont = False
-
         # tests to see if window was closed
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
