@@ -5,13 +5,15 @@ import numpy as np
 import random
 
 def is_overlapping(surface1, surface2):
+    """Returns point at which two surfaces first overlap"""
     return pygame.sprite.collide_mask(surface1, surface2)
 
 def find_midpoint(p1, p2):
+    """returns the midpoint of two points"""
     return [int((p1[0]+p2[0])/2), int((p1[1]+p2[1])/2)]
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, r=10, w=20, h=20, color=(255,0,0)):
+    def __init__(self, r=25, w=50, h=50, color=(255,0,0)):
         super().__init__()
 
         self.w = w
@@ -23,6 +25,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
     def move(self, point):
+        """Moves ball to different location"""
         point = [point[0]-(self.w/2), point[1]-(self.h/2)]
         self.rect.x = point[0]
         self.rect.y = point[1]
@@ -39,6 +42,7 @@ class Hand(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
     
     def update(self, points):
+        """Redraws hand approximations"""
         temp = pygame.Surface(self.res, pygame.SRCALPHA)
         pygame.draw.polygon(temp, (0, 128, 255), points)
         self.image = temp
@@ -70,9 +74,6 @@ class Game(pygame.sprite.Sprite):
         self.hands = []
         for hand in points:
             self.hands.append(Hand(hand))
-            # temp = pygame.Surface(self.res, pygame.SRCALPHA)
-            # pygame.draw.polygon(temp, (0, 128, 255), hand)
-            # self.hands.append(temp)
 
     def update_screen(self):
         """Updates display to include all hands found in the image"""
