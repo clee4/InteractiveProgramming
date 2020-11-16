@@ -69,7 +69,7 @@ def simplify_points(points):
 
 def get_contours(img, thresh = 1750):
     """returns points of polygon approximation of contours"""
-    contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
 
     # create hull array for convex hull points
     hull = []

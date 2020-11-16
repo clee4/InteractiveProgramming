@@ -14,7 +14,7 @@ def find_midpoint(p1, p2):
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self, r=25, w=50, h=50, color=(0,255,0)):
-        super().__init__()
+        super(Ball, self).__init__()
 
         self.r = 25
         self.w = w
@@ -40,7 +40,7 @@ class Ball(pygame.sprite.Sprite):
 
 class Hand(pygame.sprite.Sprite):
     def __init__(self, points, res=(640,480)):
-        super().__init__()
+        super(Hand, self).__init__()
         self.res = res
 
         self.image = pygame.Surface(self.res, pygame.SRCALPHA)
